@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Search, 
-  Mail, 
   ExternalLink, 
   UserCheck, 
   Clock,
@@ -333,14 +332,7 @@ export function InvitadosList() {
                           <Copy className="w-4 h-4" />
                         )}
                       </button>
-                      <button
-                        type="button"
-                        className="text-green-400 hover:text-green-300 transition-colors"
-                        title="Enviar por email"
-                        aria-label="Enviar invitación por email"
-                      >
-                        <Mail className="w-4 h-4" />
-                      </button>
+
                     </div>
                   </td>
                 </tr>
