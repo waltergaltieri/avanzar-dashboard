@@ -38,10 +38,10 @@ npm run deploy
 ## 🔧 Preparación para Producción
 
 ### 1. **Variables de Entorno**
-Crea `.env.production`:
+Configura las variables de entorno en tu plataforma de hosting:
 ```env
-VITE_SUPABASE_URL=https://tu-proyecto.supabase.co
-VITE_SUPABASE_ANON_KEY=tu_clave_anonima
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 VITE_APP_ENV=production
 ```
 

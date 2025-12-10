@@ -37,11 +37,13 @@ Publish directory: event-checkin-web/dist
 En Netlify Dashboard → Site settings → Environment variables:
 
 ```
-VITE_SUPABASE_URL = https://mbqrbqfvbootqoyyqfvg.supabase.co
-VITE_SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1icXJicWZ2Ym9vdHFveXlxZnZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUyOTc1NjUsImV4cCI6MjA4MDg3MzU2NX0.BzFQgthCxxKbo0cjFdOx-MHUGWp4nGL3RnkWDEsMK6s
+VITE_SUPABASE_URL = [TU_URL_DE_SUPABASE]
+VITE_SUPABASE_ANON_KEY = [TU_CLAVE_ANONIMA_DE_SUPABASE]
 VITE_APP_ENV = production
 VITE_APP_NAME = Avanzar Event Management
 ```
+
+**Nota:** Reemplaza `[TU_URL_DE_SUPABASE]` y `[TU_CLAVE_ANONIMA_DE_SUPABASE]` con los valores reales de tu proyecto Supabase.
 
 ### 6. **Deploy!**
 - Click "Deploy site"
