@@ -8,7 +8,8 @@ import {
   LogOut, 
   Menu, 
   X,
-  Home
+  Home,
+  QrCode
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -23,6 +24,7 @@ export function Layout({ children }: LayoutProps) {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
     { name: 'Invitados', href: '/invitados', icon: Users },
+    { name: 'Escanear QR', href: '/scanner', icon: QrCode },
     { name: 'Configuración', href: '/configuracion', icon: Settings },
   ];
 

@@ -13,7 +13,8 @@ import {
   TrendingUp,
   Calendar,
   Mail,
-  RefreshCw
+  RefreshCw,
+  QrCode
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useSmartRealtimeData, useWindowFocus } from '../hooks/useRealtimeData';
@@ -206,10 +207,10 @@ export function Dashboard() {
               </Pie>
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: '#1f2937', 
-                  border: '1px solid #374151',
+                  backgroundColor: 'rgb(31 41 55)', 
+                  border: '1px solid rgb(55 65 81)',
                   borderRadius: '8px',
-                  color: '#fff'
+                  color: 'rgb(255 255 255)'
                 }}
               />
             </PieChart>
@@ -317,6 +318,25 @@ export function Dashboard() {
                     {stats.pendientes} invitados aún no han confirmado
                   </p>
                 </div>
+              </div>
+            )}
+            
+            {/* Acceso rápido al escáner */}
+            {stats.confirmados > 0 && (
+              <div className="flex items-center p-4 bg-red-700 rounded-lg">
+                <QrCode className="w-5 h-5 text-red-300 mr-3" />
+                <div className="flex-1">
+                  <p className="text-white font-medium">Escáner QR</p>
+                  <p className="text-red-200 text-sm">
+                    Registra ingresos escaneando códigos QR
+                  </p>
+                </div>
+                <a 
+                  href="/scanner"
+                  className="bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+                >
+                  Abrir
+                </a>
               </div>
             )}
             

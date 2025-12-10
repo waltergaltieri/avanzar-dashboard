@@ -6,6 +6,7 @@ import { Dashboard } from './components/Dashboard';
 import { InvitadosList } from './components/InvitadosList';
 import { InvitacionPage } from './components/InvitacionPage';
 import { Configuracion } from './components/Configuracion';
+import { ScannerPage } from './components/ScannerPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -36,6 +37,12 @@ function AppRoutes() {
       <Route path="/invitados" element={
         <ProtectedRoute>
           <InvitadosList />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/scanner" element={
+        <ProtectedRoute>
+          <ScannerPage />
         </ProtectedRoute>
       } />
       
