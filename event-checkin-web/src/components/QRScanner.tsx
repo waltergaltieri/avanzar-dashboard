@@ -22,8 +22,10 @@ export function QRScanner({ onClose }: QRScannerProps) {
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string>('');
   const [cameraPermission, setCameraPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
+  const [isProcessing, setIsProcessing] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
+  const lastScanTimeRef = useRef<number>(0);
 
   useEffect(() => {
     // Cleanup al desmontar el componente
@@ -94,19 +96,38 @@ export function QRScanner({ onClose }: QRScannerProps) {
         selectedDeviceId,
         videoRef.current,
         async (result, error) => {
-          if (result) {
-            const qrText = result.getText();
+          if (result && !isProcessing) {
+            const now = Date.now();
+            const qrText = result.getText().trim();
+            
+            // Evitar múltiples lecturas del mismo código en poco tiempo
+            if (now - lastScanTimeRef.current < 2000) {
+              return;
+            }
+            
+            // Validar que el código no esté vacío y tenga un formato mínimo
+            if (!qrText || qrText.length < 3) {
+              console.log('QR Code too short or empty:', qrText);
+              return;
+            }
+            
             console.log('QR Code detected:', qrText);
+            lastScanTimeRef.current = now;
+            setIsProcessing(true);
             
             // Detener el escaneo
             stopScanning();
             
             // Procesar el código QR
             await processQRCode(qrText);
+            setIsProcessing(false);
           }
           
           if (error && !(error.name === 'NotFoundException')) {
-            console.error('Scan error:', error);
+            // Solo loggear errores que no sean "no se encontró código"
+            if (error.name !== 'ChecksumException' && error.name !== 'FormatException') {
+              console.error('Scan error:', error);
+            }
           }
         }
       );
@@ -137,14 +158,31 @@ export function QRScanner({ onClose }: QRScannerProps) {
   const processQRCode = async (qrCode: string) => {
     try {
       // El QR code debería contener el código de entrada
-      const codigoEntrada = qrCode.trim();
+      let codigoEntrada = qrCode.trim();
       
-      if (!codigoEntrada) {
+      // Log del código recibido para debugging
+      console.log('🔍 PROCESANDO QR:', {
+        original: qrCode,
+        limpio: codigoEntrada,
+        longitud: codigoEntrada.length,
+        timestamp: new Date().toISOString()
+      });
+      
+      if (!codigoEntrada || codigoEntrada.length < 3) {
         setScanResult({
           success: false,
-          message: 'Código QR inválido'
+          message: 'Código QR inválido o muy corto'
         });
         return;
+      }
+      
+      // Si el QR contiene una URL, extraer solo el código
+      if (codigoEntrada.includes('/invitacion/')) {
+        const parts = codigoEntrada.split('/invitacion/');
+        if (parts.length > 1) {
+          codigoEntrada = parts[1].split('?')[0].split('#')[0];
+          console.log('📝 CÓDIGO EXTRAÍDO DE URL:', codigoEntrada);
+        }
       }
 
       // Buscar el invitado en la base de datos
@@ -252,13 +290,15 @@ export function QRScanner({ onClose }: QRScannerProps) {
   const resetScanner = () => {
     setScanResult(null);
     setError('');
+    setIsProcessing(false);
+    lastScanTimeRef.current = 0;
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-800 rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto scanner-modal">
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-0 md:p-4">
+      <div className="bg-gray-800 rounded-none md:rounded-xl w-full h-full md:max-w-md md:w-full md:max-h-[90vh] md:h-auto overflow-y-auto scanner-modal">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
+        <div className="flex items-center justify-between p-4 border-b border-gray-700 scanner-header">
           <h2 className="text-xl font-bold text-white flex items-center">
             <Camera className="w-6 h-6 mr-2" />
             Escanear QR
@@ -272,7 +312,7 @@ export function QRScanner({ onClose }: QRScannerProps) {
           </button>
         </div>
 
-        <div className="p-4">
+        <div className="p-4 md:p-4 h-full flex flex-col">
           {/* Resultado del escaneo */}
           {scanResult && (
             <div className={`mb-4 p-4 rounded-lg ${
@@ -322,8 +362,8 @@ export function QRScanner({ onClose }: QRScannerProps) {
 
           {/* Cámara */}
           {!scanResult && (
-            <div className="space-y-4">
-              <div className="relative bg-black rounded-lg overflow-hidden aspect-video camera-container scanner-video">
+            <div className="space-y-4 flex-1 flex flex-col">
+              <div className="relative bg-black rounded-lg overflow-hidden flex-1 min-h-[300px] md:aspect-video camera-container scanner-video">
                 <video
                   ref={videoRef}
                   className="w-full h-full object-cover"
@@ -347,12 +387,25 @@ export function QRScanner({ onClose }: QRScannerProps) {
                   <>
                     <div className="absolute inset-0 camera-overlay"></div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="border-2 border-red-500 w-48 h-48 rounded-lg relative scan-frame">
-                        <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-red-500"></div>
-                        <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-red-500"></div>
-                        <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-red-500"></div>
-                        <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-red-500"></div>
+                      <div className={`border-2 w-48 h-48 rounded-lg relative ${isProcessing ? 'border-yellow-500' : 'border-red-500'} scan-frame`}>
+                        <div className={`absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 ${isProcessing ? 'border-yellow-500' : 'border-red-500'}`}></div>
+                        <div className={`absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 ${isProcessing ? 'border-yellow-500' : 'border-red-500'}`}></div>
+                        <div className={`absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 ${isProcessing ? 'border-yellow-500' : 'border-red-500'}`}></div>
+                        <div className={`absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 ${isProcessing ? 'border-yellow-500' : 'border-red-500'}`}></div>
+                        
+                        {isProcessing && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
+                            <div className="loading-spinner"></div>
+                          </div>
+                        )}
                       </div>
+                    </div>
+                    
+                    {/* Texto de estado */}
+                    <div className="absolute bottom-4 left-4 right-4 text-center">
+                      <p className="text-white bg-black bg-opacity-75 px-3 py-2 rounded-lg text-sm">
+                        {isProcessing ? '🔄 Procesando código...' : '📱 Apunta al código QR'}
+                      </p>
                     </div>
                   </>
                 )}
@@ -381,10 +434,11 @@ export function QRScanner({ onClose }: QRScannerProps) {
 
               {/* Instrucciones */}
               <div className="text-sm text-gray-400 space-y-2 scanner-instructions">
-                <p>• Apunta la cámara hacia el código QR</p>
-                <p>• Mantén el código dentro del marco rojo</p>
+                <p>• Apunta la cámara hacia el código QR del invitado</p>
+                <p>• Mantén el código centrado dentro del marco</p>
                 <p>• Asegúrate de tener buena iluminación</p>
-                <p>• El escaneo es automático al detectar el código</p>
+                <p>• Mantén el celular estable hasta que procese</p>
+                <p>• El escaneo es automático (no presiones nada)</p>
               </div>
             </div>
           )}
