@@ -49,7 +49,7 @@ export function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              placeholder="admin@avanzar.com"
+              placeholder="Ingresa tu email"
               required
             />
           </div>
@@ -65,7 +65,7 @@ export function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent pr-12"
-                placeholder="admin123"
+                placeholder="Ingresa tu contraseña"
                 required
               />
               <button
@@ -99,8 +99,7 @@ export function Login() {
 
         <div className="mt-6 text-center">
           <p className="text-gray-400 text-sm">
-            Credenciales de prueba:<br />
-            <span className="text-gray-300">admin@avanzar.com / admin123</span>
+            Ingresa tus credenciales de administrador
           </p>
         </div>
       </div>
